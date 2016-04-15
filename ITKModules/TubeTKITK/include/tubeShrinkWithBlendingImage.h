@@ -36,8 +36,8 @@ class ShrinkWithBlendingImage:
 public:
     /** Standard class typedefs. */
     typedef ShrinkWithBlendingImage                         Self;
-    typedef itk::SmartPointer< Self >                            Pointer;
-    typedef itk::SmartPointer< const Self >                      ConstPointer;
+    typedef itk::SmartPointer< Self >                       Pointer;
+    typedef itk::SmartPointer< const Self >                 ConstPointer;
 
     /** Method for creation through the object factory. */
     itkNewMacro( Self );
@@ -49,13 +49,8 @@ public:
     /** Typedef to images */
     typedef TOutputImage                          OutputImageType;
     typedef TInputImage                           InputImageType;
-//    typedef typename OutputImageType::Pointer     OutputImagePointer;
-//    typedef typename InputImageType::Pointer      InputImagePointer;
-//    typedef typename InputImageType::ConstPointer InputImageConstPointer;
-
-//    typedef typename TOutputImage::IndexType      OutputIndexType;
     typedef typename TInputImage::IndexType       InputIndexType;
-//    typedef typename TOutputImage::OffsetType     OutputOffsetType;
+    typedef typename TInputImage::SizeType        InputSizeType;
 
     itkStaticConstMacro( ImageDimension, unsigned int,
                          TInputImage::ImageDimension );
@@ -65,7 +60,7 @@ public:
 
     typedef itk::Vector< float, ImageDimension >       PointImagePixelType;
     typedef itk::Image< PointImagePixelType, OutputImageDimension >
-                                                  PointImageType;
+                                                       PointImageType;
 
     typedef itk::FixedArray< unsigned int, ImageDimension > ShrinkFactorsType;
 
@@ -73,6 +68,12 @@ public:
      * a minimum value of 1. Default is 1 for all dimensions. */
     void SetShrinkFactors(ShrinkFactorsType ShrinkFactors);
     void SetShrinkFactor(unsigned int i, unsigned int factor);
+
+    void SetNewSize(InputSizeType newSize);
+    InputSizeType GetNewSize();
+
+    void SetUseNewSize( bool useNewSize);
+    bool GetUseNewSize();
 
     /** Get the shrink factors. */
     ShrinkFactorsType GetShrinkFactors();
@@ -112,7 +113,8 @@ private:
   ShrinkWithBlendingImage(const Self &);
   void operator=(const Self &);
 
-  typedef itk::tube::ShrinkWithBlendingImageFilter< InputImageType, OutputImageType > ShrinkWithBlendingFilterType;
+  typedef itk::tube::ShrinkWithBlendingImageFilter< InputImageType,
+                            OutputImageType > ShrinkWithBlendingFilterType;
   typename ShrinkWithBlendingFilterType::Pointer m_ShrinkWithBlendingFilter;
 
 };

@@ -34,7 +34,7 @@ template< class TInputImage, class TOutputImage >
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::ShrinkWithBlendingImage( void )
 {
-    m_ShrinkWithBlendingFilter = ShrinkWithBlendingFilterType::New();
+  m_ShrinkWithBlendingFilter = ShrinkWithBlendingFilterType::New();
 }
 
 /**
@@ -45,7 +45,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::PrintSelf( std::ostream & os, itk::Indent  indent ) const
 {
-    m_ShrinkWithBlendingFilter->PrintSelf( os, indent);
+  m_ShrinkWithBlendingFilter->PrintSelf( os, indent);
 }
 
 
@@ -57,7 +57,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetShrinkFactors(ShrinkFactorsType shrinkFactors)
 {
-    m_ShrinkWithBlendingFilter->SetShrinkFactors(shrinkFactors);
+  m_ShrinkWithBlendingFilter->SetShrinkFactors(shrinkFactors);
 }
 
 /**
@@ -68,7 +68,51 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetShrinkFactor(unsigned int i, unsigned int factor)
 {
-    m_ShrinkWithBlendingFilter->SetShrinkFactor(i,factor);
+  m_ShrinkWithBlendingFilter->SetShrinkFactor(i,factor);
+}
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+void
+ShrinkWithBlendingImage< TInputImage, TOutputImage >
+::SetNewSize(InputSizeType newSize)
+{
+  m_ShrinkWithBlendingFilter->SetNewSize(newSize);
+}
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+typename ShrinkWithBlendingImage< TInputImage, TOutputImage >::InputSizeType
+ShrinkWithBlendingImage< TInputImage, TOutputImage >
+::GetNewSize(void)
+{
+  return m_ShrinkWithBlendingFilter->GetNewSize();
+}
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+void
+ShrinkWithBlendingImage< TInputImage, TOutputImage >
+::SetUseNewSize( bool useNewSize)
+{
+  m_ShrinkWithBlendingFilter->SetUseNewSize(useNewSize);
+}
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+bool
+ShrinkWithBlendingImage< TInputImage, TOutputImage >
+::GetUseNewSize()
+{
+  return m_ShrinkWithBlendingFilter->GetUseNewSize();
 }
 
 /**
@@ -79,7 +123,7 @@ typename ShrinkWithBlendingImage< TInputImage, TOutputImage >::ShrinkFactorsType
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetShrinkFactors(void)
 {
-    return m_ShrinkWithBlendingFilter->GetShrinkFactors();
+  return m_ShrinkWithBlendingFilter->GetShrinkFactors();
 }
 
 /**
@@ -90,7 +134,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetOverlap(InputIndexType overlap )
 {
-    m_ShrinkWithBlendingFilter->SetOverlap(overlap);
+  m_ShrinkWithBlendingFilter->SetOverlap(overlap);
 }
 
 /**
@@ -101,7 +145,7 @@ typename ShrinkWithBlendingImage< TInputImage, TOutputImage >::InputIndexType
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetOverlap(void)
 {
-    return m_ShrinkWithBlendingFilter->GetOverlap();
+  return m_ShrinkWithBlendingFilter->GetOverlap();
 }
 
 /**
@@ -112,7 +156,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetBlendWithMean( bool blendWithMean )
 {
-    m_ShrinkWithBlendingFilter->SetBlendWithMean(blendWithMean);
+  m_ShrinkWithBlendingFilter->SetBlendWithMean(blendWithMean);
 }
 
 /**
@@ -123,7 +167,7 @@ bool
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetBlendWithMean(void)
 {
-    return m_ShrinkWithBlendingFilter->GetBlendWithMean();
+  return m_ShrinkWithBlendingFilter->GetBlendWithMean();
 }
 
 /**
@@ -134,7 +178,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetBlendWithMax( bool blendWithMax)
 {
-    m_ShrinkWithBlendingFilter->SetBlendWithMax(blendWithMax);
+  m_ShrinkWithBlendingFilter->SetBlendWithMax(blendWithMax);
 }
 
 /**
@@ -145,7 +189,7 @@ bool
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetBlendWithMax(void)
 {
-    return m_ShrinkWithBlendingFilter->GetBlendWithMax();
+  return m_ShrinkWithBlendingFilter->GetBlendWithMax();
 }
 
 /**
@@ -156,7 +200,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetBlendWithGaussianWeighting( bool blendWithGaussianWeighting)
 {
-    m_ShrinkWithBlendingFilter->SetBlendWithGaussianWeighting(blendWithGaussianWeighting);
+  m_ShrinkWithBlendingFilter->SetBlendWithGaussianWeighting(blendWithGaussianWeighting);
 }
 
 /**
@@ -167,7 +211,7 @@ bool
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetBlendWithGaussianWeighting(void)
 {
-    return m_ShrinkWithBlendingFilter->GetBlendWithGaussianWeighting();
+  return m_ShrinkWithBlendingFilter->GetBlendWithGaussianWeighting();
 }
 
 /**
@@ -178,7 +222,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetUseLog( bool useLog)
 {
-    m_ShrinkWithBlendingFilter->SetUseLog(useLog);
+  m_ShrinkWithBlendingFilter->SetUseLog(useLog);
 }
 /**
  *
@@ -188,7 +232,7 @@ bool
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetUseLog(void)
 {
-    return m_ShrinkWithBlendingFilter->GetUseLog();
+  return m_ShrinkWithBlendingFilter->GetUseLog();
 }
 
 /**
@@ -199,7 +243,7 @@ typename ShrinkWithBlendingImage<TInputImage, TOutputImage>::PointImageType *
 ShrinkWithBlendingImage<TInputImage, TOutputImage>
 ::GetPointImage(void)
 {
-    return m_ShrinkWithBlendingFilter->GetPointImage();
+  return m_ShrinkWithBlendingFilter->GetPointImage();
 }
 
 /**
@@ -210,7 +254,7 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GenerateOutputInformation( void )
 {
-    m_ShrinkWithBlendingFilter->GenerateOutputInformation();
+  m_ShrinkWithBlendingFilter->GenerateOutputInformation();
 }
 
 /**
@@ -221,9 +265,8 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GenerateInputRequestedRegion( void )
 {
-    m_ShrinkWithBlendingFilter->GenerateInputRequestedRegion();
+  m_ShrinkWithBlendingFilter->GenerateInputRequestedRegion();
 }
-
 
 /**
  *
@@ -233,8 +276,9 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::SetInput( const TInputImage *inputImage )
 {
-    m_ShrinkWithBlendingFilter->SetInput(inputImage);
+  m_ShrinkWithBlendingFilter->SetInput(inputImage);
 }
+
 /**
  *
  */
@@ -243,8 +287,9 @@ void
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::Update()
 {
-    m_ShrinkWithBlendingFilter->Update();
+  m_ShrinkWithBlendingFilter->Update();
 }
+
 /**
  *
  */
@@ -253,26 +298,8 @@ typename TOutputImage::Pointer
 ShrinkWithBlendingImage< TInputImage, TOutputImage >
 ::GetOutput()
 {
-    return m_ShrinkWithBlendingFilter->GetOutput();
+  return m_ShrinkWithBlendingFilter->GetOutput();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 } // end namespace tube
 

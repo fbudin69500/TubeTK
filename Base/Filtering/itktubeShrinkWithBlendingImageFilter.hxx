@@ -78,8 +78,26 @@ ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
   for( unsigned int j = 0; j < ImageDimension; j++ )
     {
     m_ShrinkFactors[j] = 1;
+    m_NewSize[j] = 0;
     }
+  m_UseNewSize = false;
 }
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+void
+ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
+::SetNewSize( InputSizeType newSize )
+{
+  for( unsigned int j = 0; j < ImageDimension; j++ )
+  {
+    m_NewSize[j] = newSize[j];
+  }
+  this->UseNewSizeOn();
+}
+
 
 /**
  *
@@ -115,6 +133,17 @@ ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
 
   this->Modified();
   m_ShrinkFactors[i] = factor;
+  this->UseNewSizeOff();
+}
+
+
+template< typename TInputImage, typename TOutputImage >
+void
+ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
+::SetShrinkFactors( ShrinkFactorsType factors)
+{
+  m_ShrinkFactors = factors;
+  this->UseNewSizeOff();
 }
 
 /**
@@ -315,6 +344,45 @@ ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
 template< class TInputImage, class TOutputImage >
 void
 ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
+::UpdateShrinkFactors()
+{
+  if( !this->GetUseNewSize())
+    {
+    return;
+    }
+  bool warnSize = false;
+  InputImagePointer  inputPtr = const_cast< TInputImage * >(
+    this->GetInput() );
+  const typename TOutputImage::SizeType & inputSize =
+    inputPtr->GetLargestPossibleRegion().GetSize();
+  for( unsigned int i = 0; i < ImageDimension; ++i )
+    {
+    m_ShrinkFactors[ i ] = static_cast< int >( inputSize[ i ] / m_NewSize[ i ] );
+    if( static_cast< int >( inputSize[ i ] / m_ShrinkFactors[ i ] )
+        != m_NewSize[ i ] )
+      {
+      warnSize = true;
+      }
+    }
+  if( warnSize )
+    {
+    itkWarningMacro(<< "Warning: Need for integer resampling factor causes "
+                        "output size to not match target m_NewSize given.");
+    for( unsigned int i = 0; i < ImageDimension; ++i )
+      {
+      itkWarningMacro(<< "   m_NewSize [" << i << "] = " << m_NewSize[ i ]);
+      itkWarningMacro(<< "   outSize [" << i << "] = " << static_cast< int >(
+      inputSize[ i ] / m_ShrinkFactors[ i ] ));
+      }
+    }
+}
+
+/**
+ *
+ */
+template< class TInputImage, class TOutputImage >
+void
+ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
 ::GenerateInputRequestedRegion()
 {
   // Call the superclass' implementation of this method
@@ -403,6 +471,9 @@ ShrinkWithBlendingImageFilter< TInputImage, TOutputImage >
   typename TOutputImage::SpacingType outputSpacing;
   typename TOutputImage::SizeType outputSize;
   typename TOutputImage::IndexType outputStartIndex;
+
+  // Update shrink factors if new size given
+  this->UpdateShrinkFactors();
 
   for( unsigned int i = 0; i < TOutputImage::ImageDimension; i++ )
     {
