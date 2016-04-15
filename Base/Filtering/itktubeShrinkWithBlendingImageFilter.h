@@ -52,6 +52,13 @@ limitations under the License.
 
 #include "itkShrinkImageFilter.h"
 
+// Forward declare itkTubeTK class to allow friendship
+namespace tube
+{
+template< typename tube_TInputImage, typename tube_TOutputImage >
+class ShrinkWithBlendingImage;
+}
+
 namespace itk {
 
 namespace tube {
@@ -179,6 +186,9 @@ private:
 
   ShrinkFactorsType m_ShrinkFactors;
 
+  /** friendship facilitating itkTukeTK integration */
+  template< typename tube_TInputImage, typename tube_TOutputImage >
+  friend class ::tube::ShrinkWithBlendingImage;
 };
 
 } // end namespace tube
