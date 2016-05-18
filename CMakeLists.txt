@@ -601,6 +601,12 @@ include( ${SlicerExecutionModel_USE_FILE} )
 
 find_package( ITK REQUIRED )
 include( ${ITK_USE_FILE} )
+# Sanity check
+if( ITK_WRAPPING AND NOT TubeTK_USE_PYTHON)
+  message(FATAL_ERROR "ITK_WRAPPING is set to ON and TubeTK_USE_PYTHON is set to OFF. Please rebuild ITK with all ITK_WRAPPING_* set to OFF or set TubeTK_USE_PYTHON to ON ")
+endif()
+
+
 if( TubeTK_USE_VTK )
   find_package( VTK REQUIRED )
   include( ${VTK_USE_FILE} )
