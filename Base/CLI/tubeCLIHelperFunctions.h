@@ -79,21 +79,21 @@ int ParseArgsAndCallDoIt( const std::string & inputImage, int argc,
       switch( componentType )
         {
         case ImageIOType::UCHAR:
-          return DoIt< unsigned char, 2 >( argc, argv );
+          return DoIt< unsigned char,2 >( argc, argv, static_cast<unsigned char>(0) );
         case ImageIOType::CHAR:
-          return DoIt< char, 2 >( argc, argv );
+          return DoIt< char, 2 >( argc, argv,static_cast<char>(0)  );
         case ImageIOType::USHORT:
-          return DoIt< unsigned short, 2 >( argc, argv );
+          return DoIt< unsigned short, 2 >( argc, argv, static_cast<unsigned short>(0) );
         case ImageIOType::SHORT:
-          return DoIt< short, 2 >( argc, argv );
+          return DoIt< short, 2 >( argc, argv, static_cast<short>(0) );
         case ImageIOType::FLOAT:
-          return DoIt< float, 2 >( argc, argv );
+          return DoIt< float, 2 >( argc, argv, static_cast<float>(0) );
         case ImageIOType::DOUBLE:
-          return DoIt< double, 2 >( argc, argv );
+          return DoIt< double, 2 >( argc, argv, static_cast<double>(0) );
         case ImageIOType::INT:
-          return DoIt< int, 2 >( argc, argv );
+          return DoIt< int, 2 >( argc, argv, static_cast<int>(0) );
         case ImageIOType::UINT:
-          return DoIt< unsigned int, 2 >( argc, argv );
+          return DoIt< unsigned int, 2 >( argc, argv, static_cast<unsigned int>(0) );
         case ImageIOType::UNKNOWNCOMPONENTTYPE:
         default:
           tubeErrorMacro( << "Unknown component type." );
@@ -107,21 +107,21 @@ int ParseArgsAndCallDoIt( const std::string & inputImage, int argc,
       switch( componentType )
         {
         case ImageIOType::UCHAR:
-          return DoIt < unsigned char, 3 >( argc, argv );
+          return DoIt < unsigned char, 3 >( argc, argv, static_cast<unsigned char>(0) );
         case ImageIOType::CHAR:
-          return DoIt < char, 3 >( argc, argv );
+          return DoIt < char, 3 >( argc, argv, static_cast<char>(0) );
         case ImageIOType::USHORT:
-          return DoIt < unsigned short, 3 >( argc, argv );
+          return DoIt < unsigned short, 3 >( argc, argv , static_cast<unsigned short>(0));
         case ImageIOType::SHORT:
-          return DoIt< short, 3 >( argc, argv );
+          return DoIt< short, 3 >( argc, argv, static_cast<short>(0) );
         case ImageIOType::FLOAT:
-          return DoIt < float, 3 >( argc, argv );
+          return DoIt < float, 3 >( argc, argv, static_cast<float>(0) );
         case ImageIOType::DOUBLE:
-          return DoIt < double, 3 >( argc, argv );
+          return DoIt < double, 3 >( argc, argv, static_cast<double>(0) );
         case ImageIOType::INT:
-          return DoIt< int, 3 >( argc, argv );
+          return DoIt< int, 3 >( argc, argv, static_cast<int>(0) );
         case ImageIOType::UINT:
-          return DoIt< unsigned int, 3 >( argc, argv );
+          return DoIt< unsigned int, 3 >( argc, argv , static_cast<unsigned int>(0));
         case ImageIOType::UNKNOWNCOMPONENTTYPE:
         default:
           tubeErrorMacro( << "Unknown component type." );

@@ -26,18 +26,31 @@ limitations under the License.
 
 #include "ComputeBinaryImageSimilarityMetricsCLP.h"
 
+template< class TPixel,unsigned int VDimension >
+int DoIt( int argc, char * argv[], float )
+{
+  std::cout<<"float"<<std::endl;
+}
+
+template< class TPixel,unsigned int VDimension >
+int DoIt( int argc, char * argv[], double )
+{
+  std::cout<<"double"<<std::endl;
+}
+
 template< class TPixel, unsigned int VDimension >
-int DoIt( int argc, char * argv[] );
+int DoIt( int argc, char * argv[], TPixel );
 
 // Must follow include of "...CLP.h" and forward declaration of int DoIt( ... ).
 #include "tubeCLIHelperFunctions.h"
 
-template< class TPixel, unsigned int VDimension >
-int DoIt( int argc, char * argv[] )
+
+template< class TPixel,unsigned int VDimension >
+int DoIt( int argc, char * argv[] , TPixel)
 {
   PARSE_ARGS;
 
-  typedef short                                               PixelType;
+  typedef TPixel                                              PixelType;
   typedef itk::Image< PixelType, VDimension >                 ImageType;
   typedef itk::ImageFileReader< ImageType >                   ReaderType;
 
@@ -117,6 +130,7 @@ int DoIt( int argc, char * argv[] )
 
   return EXIT_SUCCESS;
 }
+
 
 int main( int argc, char * argv[] )
 {
