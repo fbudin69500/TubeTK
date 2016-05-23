@@ -4,6 +4,7 @@ set(DOCUMENTATION
 itk_module( TubeTKITK
   DEPENDS
     ITKCommon
+    MinimalPathExtraction
   EXCLUDE_FROM_DEFAULT
   DESCRIPTION
     "${DOCUMENTATION}"

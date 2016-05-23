@@ -71,8 +71,8 @@ set( MinimalPathExtraction_HASH_OR_TAG
   aed93f4ac350ee8d0c3411e885fff86095443b7a )
 
 set( TubeTK_ITK_MODULES
-  TubeTKITK
   MinimalPathExtraction
+  TubeTKITK
   )
 
 ###########################################################
