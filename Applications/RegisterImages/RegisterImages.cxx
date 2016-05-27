@@ -23,7 +23,14 @@ limitations under the License.
 
 #include "RegisterImagesCLP.h"
 
-#include "itkImageToImageRegistrationHelper.h"
+#include "tubeImageToImageRegistrationHelper.h"
+
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkImage.h>
+#include <itkTransformFileReader.h>
+#include <itkTransformFileWriter.h>
+
 
 template< class TPixel, unsigned int VDimension >
 int DoIt( int argc, char * argv[] );
@@ -32,12 +39,15 @@ int DoIt( int argc, char * argv[] );
 #include "tubeCLIHelperFunctions.h"
 
 
-template < class TPixelType, unsigned int TDimension >
+template < class PixelType, unsigned int TDimension >
 int DoIt( int argc, char * argv[] )
 {
 
   PARSE_ARGS;
-
+  typedef itk::Image<PixelType,TDimension>            ImageType;
+  typedef itk::ImageFileReader<ImageType>             ReaderType;
+  typedef itk::ImageFileWriter<ImageType>             WriterType;
+  typedef itk::TransformFileReaderTemplate<double>    TransformReaderType;
   enum VerboseLevelEnum { SILENT, STANDARD, VERBOSE };
   VerboseLevelEnum verbosity = SILENT;
   if( verbosityLevel == "Standard" )
@@ -49,9 +59,7 @@ int DoIt( int argc, char * argv[] )
     verbosity = VERBOSE;
     }
 
-  typedef typename itk::Image< TPixelType, TDimension > ImageType;
-
-  typedef typename itk::ImageToImageRegistrationHelper< ImageType >
+  typedef typename tube::ImageToImageRegistrationHelper< ImageType, double >
     RegistrationType;
 
   typename RegistrationType::Pointer reger = RegistrationType::New();
@@ -62,7 +70,20 @@ int DoIt( int argc, char * argv[] )
     {
     std::cout << "###Loading fixed image...";
     }
-  reger->LoadFixedImage( fixedImage );
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName(fixedImage);
+  try
+    {
+    reader->Update();
+    }
+  catch( itk::ExceptionObject & exception )
+    {
+    std::cerr << "Exception caught while loading fixed image."
+      << std::endl;
+    std::cerr << exception << std::endl;
+    return EXIT_FAILURE;
+    }
+  reger->SetFixedImage( reader->GetOutput() );
   if( verbosity >= STANDARD )
     {
     std::cout << "###DONE" << std::endl;
@@ -72,7 +93,19 @@ int DoIt( int argc, char * argv[] )
     {
     std::cout << "###Loading moving image...";
     }
-  reger->LoadMovingImage( movingImage );
+  reader->SetFileName(movingImage);
+  try
+    {
+    reader->Update();
+    }
+  catch( itk::ExceptionObject & exception )
+    {
+    std::cerr << "Exception caught while loading moving image."
+      << std::endl;
+    std::cerr << exception << std::endl;
+    return EXIT_FAILURE;
+    }
+  reger->SetMovingImage( reader->GetOutput() );
   if( verbosity >= STANDARD )
     {
     std::cout << "###DONE" << std::endl;
@@ -84,7 +117,20 @@ int DoIt( int argc, char * argv[] )
       {
       std::cout << "###Loading transform...";
       }
-    reger->LoadTransform( loadTransform );
+    TransformReaderType::Pointer transformReader = TransformReaderType::New();
+    transformReader->SetFileName( loadTransform );
+    try
+      {
+      transformReader->Update();
+      }
+    catch( itk::ExceptionObject & exception )
+      {
+      std::cerr << "Exception caught while loading transforms."
+        << std::endl;
+      std::cerr << exception << std::endl;
+      return EXIT_FAILURE;
+      }
+    reger->SetTransformList( *(transformReader->GetTransformList()) );
     if( verbosity >= STANDARD )
       {
       std::cout << "###DONE" << std::endl;
@@ -98,7 +144,7 @@ int DoIt( int argc, char * argv[] )
       std::cout << "WARNING: Landmarks specified, but initialization "
                 << "process was not told to use landmarks. " << std::endl;
       std::cout << "Changing initialization to use landmarks." << std::endl;
-      reger->SetInitialMethodEnum( RegistrationType::INIT_WITH_LANDMARKS );
+      reger->SetInitialMethodEnum( RegistrationType::FilterType::INIT_WITH_LANDMARKS );
       }
     }
   if( skipInitialRandomSearch )
@@ -112,7 +158,7 @@ int DoIt( int argc, char * argv[] )
 
   if( initialization == "Landmarks" )
     {
-    reger->SetInitialMethodEnum( RegistrationType::INIT_WITH_LANDMARKS );
+    reger->SetInitialMethodEnum( RegistrationType::FilterType::INIT_WITH_LANDMARKS );
     reger->SetFixedLandmarks( fixedLandmarks );
     reger->SetMovingLandmarks( movingLandmarks );
     }
@@ -123,7 +169,7 @@ int DoIt( int argc, char * argv[] )
       std::cout << "###Initialization: ImageCenters" << std::endl;
       }
     reger->SetInitialMethodEnum(
-      RegistrationType::INIT_WITH_IMAGE_CENTERS );
+      RegistrationType::FilterType::INIT_WITH_IMAGE_CENTERS );
     }
   else if( initialization == "SecondMoments" )
     {
@@ -132,7 +178,7 @@ int DoIt( int argc, char * argv[] )
       std::cout << "###Initialization: SecondMoments" << std::endl;
       }
     reger->SetInitialMethodEnum(
-      RegistrationType::INIT_WITH_SECOND_MOMENTS );
+      RegistrationType::FilterType::INIT_WITH_SECOND_MOMENTS );
     }
   else if( initialization == "CentersOfMass" )
     {
@@ -141,7 +187,7 @@ int DoIt( int argc, char * argv[] )
       std::cout << "###Initialization: CentersOfMass" << std::endl;
       }
     reger->SetInitialMethodEnum(
-      RegistrationType::INIT_WITH_CENTERS_OF_MASS );
+      RegistrationType::FilterType::INIT_WITH_CENTERS_OF_MASS );
     }
   else // if( initialization == "None" )
     {
@@ -149,7 +195,7 @@ int DoIt( int argc, char * argv[] )
       {
       std::cout << "###Initialization: None" << std::endl;
       }
-    reger->SetInitialMethodEnum( RegistrationType::INIT_WITH_NONE );
+    reger->SetInitialMethodEnum( RegistrationType::FilterType::INIT_WITH_NONE );
     }
 
   if( registration == "None" )
@@ -297,7 +343,7 @@ int DoIt( int argc, char * argv[] )
     }
 
   typedef typename itk::ImageFileReader<
-    itk::Image< unsigned char, TDimension > > ImageReader;
+    itk::Image< unsigned char, TDimension > > ImageMaskReader;
   typedef typename itk::ImageMaskSpatialObject< TDimension >
     ImageMaskSpatialObject;
 
@@ -305,11 +351,11 @@ int DoIt( int argc, char * argv[] )
     {
     reger->SetUseFixedImageMaskObject( true );
 
-    typename ImageReader::Pointer reader = ImageReader::New();
-    reader->SetFileName( fixedImageMask );
+    typename ImageMaskReader::Pointer maskReader = ImageMaskReader::New();
+    maskReader->SetFileName( fixedImageMask );
     try
       {
-      reader->Update();
+      maskReader->Update();
       }
     catch( itk::ExceptionObject & exception )
       {
@@ -321,7 +367,7 @@ int DoIt( int argc, char * argv[] )
 
     typename ImageMaskSpatialObject::Pointer mask =
       ImageMaskSpatialObject::New();
-    mask->SetImage( reader->GetOutput() );
+    mask->SetImage( maskReader->GetOutput() );
     reger->SetFixedImageMaskObject( mask );
 
     if( verbosity >= STANDARD )
@@ -562,21 +608,25 @@ int DoIt( int argc, char * argv[] )
       return EXIT_FAILURE;
       }
 
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetUseCompression( true );
+    writer->SetInput( resultImage );
+    writer->SetFileName( resampledImage );
     try
       {
-      reger->SaveImage( resampledImage, resultImage );
+      writer->Update();
       }
     catch( itk::ExceptionObject & exception )
       {
       std::cerr <<
-        "Exception caught during helper class resampled image saving."
+        "Exception caught while saving resampled image."
         << exception << std::endl;
       return EXIT_FAILURE;
       }
     catch( ... )
       {
       std::cerr <<
-        "Uncaught exception during helper class resampled image saving."
+        "Uncaught exception while saving resampled image."
         << std::endl;
       return EXIT_FAILURE;
       }
@@ -586,17 +636,30 @@ int DoIt( int argc, char * argv[] )
     {
     try
       {
-      reger->SaveTransform( saveTransform );
+      typedef itk::TransformBaseTemplate<double>       TransformType;
+      typedef typename TransformType::Pointer          TransformPointer;
+      typedef typename std::list< TransformPointer >   TransformListType;
+      typedef itk::TransformFileWriterTemplate<double> TransformWriterType;
+
+      TransformWriterType::Pointer transformWriter = TransformWriterType::New();
+      transformWriter->SetFileName(saveTransform);
+      TransformListType transformList = reger->GetTransformList();
+      while(!transformList.empty())
+        {
+        transformWriter->AddTransform(transformList.front());
+        transformList.pop_front();
+        }
+      transformWriter->Update();
       }
     catch( itk::ExceptionObject & exception )
       {
-      std::cerr << "Exception caught during helper class transform saving."
+      std::cerr << "Exception caught during transform saving."
                 << exception << std::endl;
       return EXIT_FAILURE;
       }
     catch( ... )
       {
-      std::cerr << "Uncaught exception during helper class saving."
+      std::cerr << "Uncaught exception during transform saving."
                 << std::endl;
       return EXIT_FAILURE;
       }
@@ -606,17 +669,24 @@ int DoIt( int argc, char * argv[] )
     {
     try
       {
-      reger->SaveDisplacementField( saveDisplacementField );
+      typedef typename RegistrationType::DisplacementFieldType DisplacementFieldType;
+      typename DisplacementFieldType::Pointer displacementField;
+      displacementField = reger->GetDisplacementField();
+      typedef typename itk::ImageFileWriter< DisplacementFieldType > FieldWriterType;
+      typename FieldWriterType::Pointer fieldWriter = FieldWriterType::New();
+      fieldWriter->SetInput( displacementField );
+      fieldWriter->SetFileName( saveDisplacementField );
+      fieldWriter->Update();
       }
     catch( itk::ExceptionObject & exception )
       {
-      std::cerr << "Exception caught during helper class transform saving."
+      std::cerr << "Exception caught during transform saving."
                 << exception << std::endl;
       return EXIT_FAILURE;
       }
     catch( ... )
       {
-      std::cerr << "Uncaught exception during helper class saving."
+      std::cerr << "Uncaught exception during saving."
                 << std::endl;
       return EXIT_FAILURE;
       }

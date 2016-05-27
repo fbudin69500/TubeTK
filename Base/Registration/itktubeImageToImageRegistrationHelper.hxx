@@ -14,13 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkImageToImageRegistrationHelper_txx
-#define __itkImageToImageRegistrationHelper_txx
+#ifndef __itktubeImageToImageRegistrationHelper_hxx
+#define __itktubeImageToImageRegistrationHelper_hxx
 
-#include "itkImageToImageRegistrationHelper.h"
+#include "itktubeImageToImageRegistrationHelper.h"
 
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
 #include "itkResampleImageFilter.h"
 #include "itkTestingComparisonImageFilter.h"
 #include "itkInterpolateImageFunction.h"
@@ -28,8 +26,6 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkWindowedSincInterpolateImageFunction.h"
-#include "itkTransformFileReader.h"
-#include "itkTransformFileWriter.h"
 #include "itkTransformFactory.h"
 #include "itkSubtractImageFilter.h"
 #include "itkMinimumMaximumImageCalculator.h"
@@ -37,9 +33,10 @@
 
 namespace itk
 {
-
-template <class TImage>
-ImageToImageRegistrationHelper<TImage>
+namespace tube
+{
+template <class TImage, class TTransformPrecisionType>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::ImageToImageRegistrationHelper()
 {
   // Data
@@ -105,7 +102,7 @@ ImageToImageRegistrationHelper<TImage>
 
   m_MinimizeMemory = false;
   // Optimizer
-  m_UseEvolutionaryOptimization = true ;
+  m_UseEvolutionaryOptimization = true;
   // Loaded
   m_LoadedMatrixTransform = NULL;
   m_LoadedBSplineTransform = NULL;
@@ -150,71 +147,15 @@ ImageToImageRegistrationHelper<TImage>
 
 }
 
-template <class TImage>
-ImageToImageRegistrationHelper<TImage>
+template <class TImage, class TTransformPrecisionType>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::~ImageToImageRegistrationHelper()
 {
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
-::LoadFixedImage( const std::string & filename )
-{
-  typedef ImageFileReader<TImage> ImageReaderType;
-
-  typename ImageReaderType::Pointer imageReader = ImageReaderType::New();
-
-  imageReader->SetFileName( filename );
-
-  imageReader->Update();
-
-  SetFixedImage( imageReader->GetOutput() );
-
-  m_CompletedStage = PRE_STAGE;
-
-  m_CompletedInitialization = false;
-  m_CompletedResampling = false;
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::LoadMovingImage( const std::string & filename )
-{
-  typedef ImageFileReader<TImage> ImageReaderType;
-
-  typename ImageReaderType::Pointer imageReader = ImageReaderType::New();
-
-  imageReader->SetFileName( filename );
-
-  imageReader->Update();
-
-  SetMovingImage( imageReader->GetOutput() );
-
-  m_CompletedStage = PRE_STAGE;
-
-  m_CompletedInitialization = false;
-  m_CompletedResampling = false;
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::SaveImage( const std::string & filename, const TImage * image )
-{
-  typedef ImageFileWriter<TImage> FileWriterType;
-
-  typename FileWriterType::Pointer fileWriter = FileWriterType::New();
-  fileWriter->SetUseCompression( true );
-  fileWriter->SetInput( image );
-  fileWriter->SetFileName( filename );
-  fileWriter->Update();
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetFixedImageMaskObject( const MaskObjectType * maskObject )
 {
   if( this->m_FixedImageMaskObject.GetPointer() != maskObject )
@@ -234,9 +175,9 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetMovingImageMaskObject( const MaskObjectType * maskObject )
 {
   if( this->m_MovingImageMaskObject.GetPointer() != maskObject )
@@ -256,9 +197,9 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::Initialize( void )
 {
   // m_LoadedTransform = 0;  Not Initialized - since it is a user parameter
@@ -299,9 +240,9 @@ ImageToImageRegistrationHelper<TImage>
 
 /** This class provides an Update() method to fit the appearance of a
  * ProcessObject API, but it is not a ProcessObject.  */
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::Update( void )
 {
   if( !(this->m_CompletedInitialization) )
@@ -782,9 +723,9 @@ ImageToImageRegistrationHelper<TImage>
   // this->SaveImage("c:/result.mha",m_CurrentMovingImage);
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 typename TImage::ConstPointer
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::ResampleImage( InterpolationMethodEnumType interpolationMethod,
                  const ImageType * movingImage,
                  const MatrixTransformType * matrixTransform,
@@ -1076,33 +1017,17 @@ ImageToImageRegistrationHelper<TImage>
   return mImage;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 typename TImage::ConstPointer
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::GetFinalMovingImage( InterpolationMethodEnumType interpolationMethod )
 {
   return ResampleImage( interpolationMethod );
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
-::LoadBaselineImage( const std::string & filename )
-{
-  typedef ImageFileReader<TImage> ImageReaderType;
-
-  typename ImageReaderType::Pointer imageReader = ImageReaderType::New();
-
-  imageReader->SetFileName( filename );
-
-  imageReader->Update();
-
-  SetBaselineImage( imageReader->GetOutput() );
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::ComputeBaselineDifference()
 {
   if( m_BaselineImage.IsNull() )
@@ -1148,38 +1073,16 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
-::LoadParameters( const std::string & itkNotUsed(filename) )
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
+::SetTransformList( const TransformListType &transforms )
 {
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::SaveParameters( const std::string & itkNotUsed(filename) )
-{
-}
-
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::LoadTransform( const std::string & filename )
-{
-  typedef TransformFileReader                    TransformReaderType;
-  typedef TransformReaderType::TransformListType TransformListType;
-
-  TransformReaderType::Pointer transformReader = TransformReaderType::New();
-  transformReader->SetFileName( filename );
-
   TransformFactory<BSplineTransformType>::RegisterTransform();
 
-  transformReader->Update();
-
-  TransformListType *transforms = transformReader->GetTransformList();
-  TransformListType::const_iterator transformIt = transforms->begin();
-  while( transformIt != transforms->end() )
+  typename TransformListType::const_iterator transformIt = transforms.begin();
+  while( transformIt != transforms.end() )
     {
     if( !strcmp( (*transformIt)->GetNameOfClass(), "AffineTransform") )
       {
@@ -1204,42 +1107,38 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::SaveTransform( const std::string & filename )
+template <class TImage, class TTransformPrecisionType>
+typename ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
+::TransformListType
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
+::GetTransformList()
 {
-  typedef TransformFileWriter TransformWriterType;
-
-  TransformWriterType::Pointer transformWriter = TransformWriterType::New();
-  transformWriter->SetFileName( filename );
+  TransformListType transformList;
 
   TransformFactory<BSplineTransformType>::RegisterTransform();
 
   if( m_CurrentMatrixTransform.IsNotNull() )
     {
-    transformWriter->SetInput( m_CurrentMatrixTransform );
+    transformList.push_back(m_CurrentMatrixTransform.GetPointer());
     if( m_CurrentBSplineTransform.IsNotNull() )
       {
-      transformWriter->AddTransform( m_CurrentBSplineTransform );
+      transformList.push_back(m_CurrentBSplineTransform.GetPointer());
       }
-    transformWriter->Update();
     }
   else if( m_CurrentBSplineTransform.IsNotNull() )
     {
-    transformWriter->SetInput( m_CurrentBSplineTransform );
-    transformWriter->Update();
+    transformList.push_back(m_CurrentBSplineTransform.GetPointer());
     }
+  return transformList;
 }
 
-template <class TImage>
-void
-ImageToImageRegistrationHelper<TImage>
-::SaveDisplacementField( const std::string &filename )
+template <class TImage, class TTransformPrecisionType>
+typename ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
+::DisplacementFieldType*
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
+::GetDisplacementField()
 {
-  typedef itk::Vector<PixelType,TImage::ImageDimension>  VectorType;
-  typedef itk::Image<VectorType,TImage::ImageDimension>  DisplacementFieldType;
-  typedef itk::ImageRegionIterator< DisplacementFieldType > FieldIterator;
+  typedef typename itk::ImageRegionIterator< DisplacementFieldType > FieldIterator;
 
   typename TImage::RegionType fixedImageRegion =
     m_FixedImage->GetBufferedRegion();
@@ -1286,19 +1185,12 @@ ImageToImageRegistrationHelper<TImage>
     it.Set( dx );
     ++it;
     }
-
-  typedef itk::ImageFileWriter< DisplacementFieldType >  FieldWriterType;
-  typename FieldWriterType::Pointer fieldWriter = FieldWriterType::New();
-
-  fieldWriter->SetInput( field );
-  fieldWriter->SetFileName( filename );
-
-  fieldWriter->Update();
+  return field;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetLoadedMatrixTransform( const MatrixTransformType & tfm )
 {
   m_LoadedMatrixTransform = MatrixTransformType::New();
@@ -1312,9 +1204,9 @@ ImageToImageRegistrationHelper<TImage>
   m_CurrentMovingImage = m_MovingImage;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetLoadedBSplineTransform( const BSplineTransformType & tfm )
 {
   m_LoadedBSplineTransform = BSplineTransformType::New();
@@ -1326,9 +1218,9 @@ ImageToImageRegistrationHelper<TImage>
   m_CurrentMovingImage = m_MovingImage;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetRegionOfInterest( const PointType & point1,
                        const PointType & point2 )
 {
@@ -1337,9 +1229,9 @@ ImageToImageRegistrationHelper<TImage>
   m_UseRegionOfInterest = true;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetRegionOfInterest( const std::vector<float> & points )
 {
   if( points.size() != 2 * ImageDimension )
@@ -1355,9 +1247,9 @@ ImageToImageRegistrationHelper<TImage>
   m_UseRegionOfInterest = true;
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetFixedLandmarks( const std::vector<std::vector<float> > & fixedLandmarks )
 {
   m_FixedLandmarks.clear();
@@ -1371,9 +1263,9 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::SetMovingLandmarks( const std::vector<std::vector<float> > & movingLandmarks )
 {
   m_MovingLandmarks.clear();
@@ -1387,9 +1279,9 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::PrintSelfHelper( std::ostream & os, Indent indent,
                    const std::string & basename,
                    MetricMethodEnumType metric,
@@ -1441,9 +1333,9 @@ ImageToImageRegistrationHelper<TImage>
     }
 }
 
-template <class TImage>
+template <class TImage, class TTransformPrecisionType>
 void
-ImageToImageRegistrationHelper<TImage>
+ImageToImageRegistrationHelper<TImage, TTransformPrecisionType>
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );
@@ -1698,6 +1590,7 @@ ImageToImageRegistrationHelper<TImage>
 
 }
 
-}
+}//end of tube namespace
+}//end of itk namespace
 
 #endif

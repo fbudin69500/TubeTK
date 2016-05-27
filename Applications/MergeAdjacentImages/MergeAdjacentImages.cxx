@@ -24,12 +24,16 @@ limitations under the License.
 #include "itkGeneralizedDistanceTransformImageFilter.h"
 #include "tubeCLIProgressReporter.h"
 #include "tubeMessage.h"
+#include "tubeImageToImageRegistrationHelper.h"
 
 #include <itkImageRegionIteratorWithIndex.h>
-#include <itkImageToImageRegistrationHelper.h>
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
 #include <itkTimeProbesCollectorBase.h>
 #include <itkBinaryThresholdImageFilter.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkTransformFileReader.h>
+#include <itkTransformFileWriter.h>
 
 #include "MergeAdjacentImagesCLP.h"
 
@@ -270,7 +274,7 @@ int DoIt( int argc, char * argv[] )
   timeCollector.Stop("Allocate output image");
 
   typename ImageType::ConstPointer tmpImage;
-  typedef typename itk::ImageToImageRegistrationHelper< ImageType >
+  typedef typename tube::ImageToImageRegistrationHelper< ImageType, double >
     RegFilterType;
   typename RegFilterType::Pointer regOp = RegFilterType::New();
   regOp->SetFixedImage( curImage1 );
@@ -302,7 +306,36 @@ int DoIt( int argc, char * argv[] )
 
   if( ! saveTransform.empty() )
     {
-    regOp->SaveTransform( saveTransform );
+    try
+      {
+      //regOp->SaveTransform( saveTransform );
+      typedef itk::TransformBaseTemplate<double>       TransformType;
+      typedef typename TransformType::Pointer          TransformPointer;
+      typedef typename std::list< TransformPointer >   TransformListType;
+      typedef itk::TransformFileWriterTemplate<double> TransformWriterType;
+
+      TransformWriterType::Pointer transformWriter = TransformWriterType::New();
+      transformWriter->SetFileName(saveTransform);
+      TransformListType transformList = regOp->GetTransformList();
+      while(!transformList.empty())
+        {
+        transformWriter->AddTransform(transformList.front());
+        transformList.pop_front();
+        }
+      transformWriter->Update();
+      }
+    catch( itk::ExceptionObject & exception )
+      {
+      std::cerr << "Exception caught during transform saving."
+                << exception << std::endl;
+      return EXIT_FAILURE;
+      }
+    catch( ... )
+      {
+      std::cerr << "Uncaught exception during transform saving."
+                << std::endl;
+      return EXIT_FAILURE;
+      }
     }
 
   timeCollector.Start("Resample Image");

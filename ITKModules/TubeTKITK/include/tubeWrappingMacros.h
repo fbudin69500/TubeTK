@@ -37,6 +37,22 @@ limitations under the License.
     return this->m_##wrap_filter_object_name->Get##name();        \
     }
 
+#define tubeWrapBooleanMacro(name,wrap_filter_object_name) \
+  void name##On ()                                         \
+    {                                                      \
+    this->m_##wrap_filter_object_name->Set##name(true);    \
+    }                                                      \
+  void name##Off ()                                        \
+    {                                                      \
+    this->m_##wrap_filter_object_name->Set##name(false);   \
+    }
+
+#define tubeWrapGetConstMacro(name, type, wrap_filter_object_name)   \
+  type Get##name () const                                            \
+    {                                                                \
+    return this->m_##wrap_filter_object_name->Get##name();           \
+    }
+
 /** Get pointer to input of object type. */
 #define tubeWrapGetObjectMacro( name, type, wrap_filter_object_name )    \
   type * Get##name( void )                                               \
@@ -54,6 +70,17 @@ limitations under the License.
 /** Set input of fundamental type */
 #define tubeWrapSetMacro( name, type, wrap_filter_object_name )   \
   void Set##name( const type value )                              \
+    {                                                             \
+    if( this->m_##wrap_filter_object_name->Get##name() != value ) \
+      {                                                           \
+      this->m_##wrap_filter_object_name->Set##name( value );      \
+      this->Modified();                                           \
+      }                                                           \
+    }
+
+/** Set reference input of fundamental type */
+#define tubeWrapSetConstReferenceMacro( name, type, wrap_filter_object_name )   \
+  void Set##name( const type & value )                              \
     {                                                             \
     if( this->m_##wrap_filter_object_name->Get##name() != value ) \
       {                                                           \

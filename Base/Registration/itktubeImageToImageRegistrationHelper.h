@@ -15,8 +15,8 @@
 
 =========================================================================*/
 
-#ifndef __itkImageToImageRegistrationHelper_h
-#define __itkImageToImageRegistrationHelper_h
+#ifndef __itktubeImageToImageRegistrationHelper_h
+#define __itktubeImageToImageRegistrationHelper_h
 
 #include "itkImage.h"
 #include "itkCommand.h"
@@ -28,10 +28,12 @@
 #include "itkAffineImageToImageRegistrationMethod.h"
 #include "itkBSplineImageToImageRegistrationMethod.h"
 
+
 namespace itk
 {
-
-template <class TImage>
+namespace tube
+{
+template <class TImage, class TTransformPrecisionType = double>
 class ImageToImageRegistrationHelper : public Object
 {
 
@@ -77,6 +79,15 @@ public:
   typedef BSplineImageToImageRegistrationMethod<TImage>
   BSplineRegistrationMethodType;
 
+  typedef TransformBaseTemplate<TTransformPrecisionType>
+  TransformType;
+
+  typedef typename TransformType::Pointer
+  TransformPointer;
+
+  typedef typename std::list< TransformPointer >
+  TransformListType;
+
   //
   // Typedefs for the parameters of the registration methods
   //
@@ -121,6 +132,11 @@ public:
   typedef typename BSplineRegistrationMethodType::TransformType
   BSplineTransformType;
 
+  typedef itk::Vector<PixelType,TImage::ImageDimension>  VectorType;
+
+  typedef typename itk::Image<VectorType,TImage::ImageDimension>
+  DisplacementFieldType;
+
   //
   // Custom Methods
   //
@@ -130,20 +146,15 @@ public:
   //  Specify the fixed and moving images
   // **************
   // **************
-  void LoadFixedImage( const std::string & filename );
 
   itkSetConstObjectMacro( FixedImage, TImage );
   itkGetConstObjectMacro( FixedImage, TImage );
-
-  void LoadMovingImage( const std::string & filename );
 
   itkSetConstObjectMacro( MovingImage, TImage );
   itkGetConstObjectMacro( MovingImage, TImage );
 
   // **************
-  //  Generic file-save function
   // **************
-  void SaveImage( const std::string & filename, const TImage * image );
 
   itkSetMacro( RandomNumberSeed, unsigned int );
   itkGetMacro( RandomNumberSeed, unsigned int );
@@ -228,14 +239,16 @@ public:
   // **************
 
   // Specify the baseline image.
-  void LoadBaselineImage( const std::string & filename );
-
   itkSetConstObjectMacro( BaselineImage, TImage );
+  itkGetConstObjectMacro( BaselineImage, TImage );
 
   // Bound the required accuracy for the registration test to "pass"
   itkSetMacro( BaselineNumberOfFailedPixelsTolerance,  unsigned int );
+  itkGetMacro( BaselineNumberOfFailedPixelsTolerance,  unsigned int );
   itkSetMacro( BaselineIntensityTolerance, PixelType );
+  itkGetMacro( BaselineIntensityTolerance, PixelType );
   itkSetMacro( BaselineRadiusTolerance, unsigned int );
+  itkGetMacro( BaselineRadiusTolerance, unsigned int );
 
   // Must be called after setting the BaselineImage in order to resample
   //   the moving image into the BaselineImage space, compute differences,
@@ -315,13 +328,6 @@ public:
   itkGetConstObjectMacro( BSplineTransformResampledImage, TImage );
 
   // **************
-  //  Not implemented at this time :(
-  // **************
-  void LoadParameters( const std::string & filename );
-
-  void SaveParameters( const std::string & filename );
-
-  // **************
   //  Final metric value after the pipeline has completed
   // **************
   itkGetMacro( FinalMetricValue, double );
@@ -340,11 +346,12 @@ public:
   //
   // Loaded transforms parameters
   //
-  void LoadTransform( const std::string & filename );
 
-  void SaveTransform( const std::string & filename );
+  void SetTransformList( const TransformListType &transforms );
 
-  void SaveDisplacementField( const std::string &filename );
+  TransformListType GetTransformList();
+
+  DisplacementFieldType* GetDisplacementField();
 
   void SetLoadedMatrixTransform( const MatrixTransformType & tfm );
 
@@ -428,6 +435,11 @@ public:
 
   itkGetConstObjectMacro( BSplineTransform, BSplineTransformType );
   itkGetMacro( BSplineMetricValue, double );
+
+  // Get for Print in ITKTubeTK
+  itkGetMacro(CompletedInitialization, bool);
+  itkGetMacro(CompletedResampling,bool);
+  itkGetConstObjectMacro(InitialTransform,InitialTransformType);
 protected:
 
   ImageToImageRegistrationHelper( void );
@@ -559,11 +571,11 @@ private:
   double m_BSplineMetricValue;
 
 };
-
-}
+}//end of tube namespace
+}//end of itk namespace
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToImageRegistrationHelper.txx"
+#include "itktubeImageToImageRegistrationHelper.hxx"
 #endif
 
 #endif
