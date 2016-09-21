@@ -41,45 +41,43 @@ void
 ConvertImagesToCSVFilter< TInputImage >
 ::Update( void )
 {
-  const unsigned int ARows = m_InputImage->GetLargestPossibleRegion().GetNumberOfPixels() / m_Stride; // number of pixels/stride or less
+  // number of pixels/stride or less
+  const unsigned int ARows =
+    m_InputImage->GetLargestPossibleRegion().GetNumberOfPixels() / m_Stride;
   const unsigned int ACols = m_ImageList.size() + 1;
   m_Output.set_size(ARows, ACols);
-
   std::vector< IteratorType * > iterList;
   for (unsigned int i = 0; i < m_NumImages; ++i)
-  {
-	iterList.push_back(new IteratorType(m_ImageList[i],
-	  m_ImageList[i]->GetLargestPossibleRegion()));
-  }
-
+    {
+    iterList.push_back(new IteratorType(m_ImageList[i],
+    m_ImageList[i]->GetLargestPossibleRegion()));
+    }
   IteratorType maskIter(m_InputImage, m_InputImage->GetLargestPossibleRegion());
   unsigned int i = 0;
   while (!maskIter.IsAtEnd())
-  {
-	if (maskIter.Get() != 0)
-	{
-	  for (i = 0; i<m_NumImages; ++i)
-	  {
-		m_Output(m_NumberRows, i) = iterList[i]->Get();
-	  }
-	  
-	  m_Output(m_NumberRows, i) = maskIter.Get();
-	  m_NumberRows++;
-	}
-	for (int s = 0; s<m_Stride && !maskIter.IsAtEnd(); ++s)
-	{
-	  for (unsigned int i = 0; i<m_NumImages; ++i)
-	  {
-		++(*iterList[i]);
-	  }
-	  ++maskIter;
-	}
-  }
-
+    {
+    if (maskIter.Get() != 0)
+      {
+      for (i = 0; i<m_NumImages; ++i)
+        {
+        m_Output(m_NumberRows, i) = iterList[i]->Get();
+        }
+      m_Output(m_NumberRows, i) = maskIter.Get();
+      m_NumberRows++;
+      }
+    for (int s = 0; s<m_Stride && !maskIter.IsAtEnd(); ++s)
+      {
+      for (unsigned int i = 0; i<m_NumImages; ++i)
+        {
+        ++(*iterList[i]);
+        }
+      ++maskIter;
+      }
+    }
   for (unsigned int i = 0; i<iterList.size(); ++i)
-  {
-	delete iterList[i];
-  }
+    {
+    delete iterList[i];
+    }
   iterList.clear();
 }
 
@@ -107,22 +105,3 @@ PrintSelf( std::ostream & os, Indent indent ) const
 
 } // End namespace itk
 #endif // End !defined( __itktubeConvertImagesToCSVFilter_hxx )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -55,7 +55,7 @@ public:
 
   tubeWrapSetObjectMacro(InputImage, InputImageType, ConvertImagesToCSVFilter);
   tubeWrapGetObjectMacro(InputImage, InputImageType, ConvertImagesToCSVFilter);
-  tubeWrapGetMacro(Output, vnl_matrix<InputPixelType>, ConvertImagesToCSVFilter);
+  tubeWrapGetMacro(Output, vnl_matrix <InputPixelType>, ConvertImagesToCSVFilter);
   tubeWrapGetMacro(Stride, unsigned int, ConvertImagesToCSVFilter);
   tubeWrapSetMacro(Stride, unsigned int, ConvertImagesToCSVFilter);
   tubeWrapSetMacro(NumImages, unsigned int, ConvertImagesToCSVFilter);

@@ -41,12 +41,14 @@ public:
   typedef SmartPointer< Self >          Pointer;
   typedef SmartPointer< const Self >    ConstPointer;
 
+
   typedef TInputImage                           InputImageType;
   typedef typename InputImageType::Pointer      ImagePointer;
   typedef typename InputImageType::PixelType    InputPixelType;
   typedef typename InputImageType::IndexType    IndexType;
   typedef ImageFileReader< InputImageType >     ReaderType;
   typedef ImageRegionIterator< InputImageType > IteratorType;
+
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,7 +63,7 @@ public:
   itkSetObjectMacro(InputImage, InputImageType);
   itkGetObjectMacro(InputImage, InputImageType);
 
-  itkGetConstMacro(Output, vnl_matrix<InputPixelType>);
+  itkGetMacro(Output, vnl_matrix <InputPixelType>);
 
   itkGetMacro(Stride, unsigned int);
   itkSetMacro(Stride, unsigned int);

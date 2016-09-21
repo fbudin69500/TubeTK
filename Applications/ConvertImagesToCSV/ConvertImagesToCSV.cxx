@@ -59,22 +59,23 @@ int DoIt( int argc, char * argv[] )
   typedef itk::Image< InputPixelType, VDimension >  InputImageType;
   typedef itk::ImageFileReader< InputImageType >    ReaderType;
   
-  typedef itk::tube::ConvertImagesToCSVFilter< InputImageType > ConvertImagesToCSVFilterType;
+  typedef itk::tube::ConvertImagesToCSVFilter< InputImageType >
+                                   ConvertImagesToCSVFilterType;
   typename ConvertImagesToCSVFilterType::Pointer filter
-	= ConvertImagesToCSVFilterType::New();
+  = ConvertImagesToCSVFilterType::New();
 
   typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(inputImageFileName);
   try
-  {
-	reader->Update();
-  }
+    {
+    reader->Update();
+    }
   catch (itk::ExceptionObject & err)
-  {
-	tube::ErrorMessage("Reading volume: Exception caught: "
-	  + std::string(err.GetDescription()));
-	return EXIT_FAILURE;
-  }
+    {
+    tube::ErrorMessage("Reading volume: Exception caught: "
+      + std::string(err.GetDescription()));
+    return EXIT_FAILURE;
+    }
 
   typename InputImageType::Pointer maskImage = reader->GetOutput();
 
@@ -82,41 +83,44 @@ int DoIt( int argc, char * argv[] )
   std::vector< typename InputImageType::Pointer > imageList;
   std::vector< std::string > imageFileNameList;
   tube::StringToVector< std::string >(inputImageFileNameList,
-	imageFileNameList);
+  imageFileNameList);
 
   if (stride < 1)
-  {
-	stride = 1;
-  }
+    {
+    stride = 1;
+    }
   std::vector<std::string> fileName;
   for (unsigned int i = 0; i < imageFileNameList.size(); ++i)
-  {
-	reader = ReaderType::New();
-	reader->SetFileName(imageFileNameList[i]);
-	char filePath[4096];
-	fileName.push_back(imageFileNameList[i]);
-	if (MET_GetFilePath(imageFileNameList[i].c_str(), filePath))
-	{
-	  fileName[i] = &(imageFileNameList[i][strlen(filePath)]);
-	}
-	try
-	{
-	  reader->Update();
-	}
-	catch (itk::ExceptionObject & err)
-	{
-	  tube::ErrorMessage("Reading volume: Exception caught: "
-		+ std::string(err.GetDescription()));
-	  return EXIT_FAILURE;
-	}
-	imageList.push_back(reader->GetOutput());
-	filter->SetNthInput(reader->GetOutput());
-	++numImages;
-  }
+    {
+    reader = ReaderType::New();
+    reader->SetFileName(imageFileNameList[i]);
+    char filePath[4096];
+    fileName.push_back(imageFileNameList[i]);
+    if (MET_GetFilePath(imageFileNameList[i].c_str(), filePath))
+    {
+      fileName[i] = &(imageFileNameList[i][strlen(filePath)]);
+    }
+    try
+    {
+      reader->Update();
+      }
+    catch (itk::ExceptionObject & err)
+      {
+      tube::ErrorMessage("Reading volume: Exception caught: "
+      + std::string(err.GetDescription()));
+      return EXIT_FAILURE;
+      }
+    imageList.push_back(reader->GetOutput());
+    filter->SetNthInput(reader->GetOutput());
+    ++numImages;
+    }
 
   typedef vnl_matrix<InputPixelType> MatrixType;
-  const unsigned int ARows =  maskImage->GetLargestPossibleRegion().GetNumberOfPixels() / stride; // number of pixels/stride or less
-  const unsigned int ACols = imageFileNameList.size() + 1; // +1 is for the "class"
+  // number of pixels/stride or less
+  const unsigned int ARows =
+     maskImage->GetLargestPossibleRegion().GetNumberOfPixels() / stride;
+  // +1 is for the "class"
+  const unsigned int ACols = imageFileNameList.size() + 1;
   MatrixType matrix;
   matrix.set_size(ARows, ACols);
 
@@ -142,15 +146,15 @@ int DoIt( int argc, char * argv[] )
   writer->SetColumnHeaders(fileName);
 
   try
-  {
-	writer->Write();
-  }
+    {
+    writer->Write();
+    }
   catch (itk::ExceptionObject& exp)
-  {
-	std::cerr << "Exception caught!" << std::endl;
-	std::cerr << exp << std::endl;
-	return EXIT_FAILURE;
-  }
+    {
+    std::cerr << "Exception caught!" << std::endl;
+    std::cerr << exp << std::endl;
+    return EXIT_FAILURE;
+    }
 
   return EXIT_SUCCESS;
 }

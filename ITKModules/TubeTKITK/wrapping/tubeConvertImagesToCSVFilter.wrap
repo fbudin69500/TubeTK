@@ -1,5 +1,11 @@
 itk_wrap_include( tubeConvertImagesToCSV.h )
 itk_wrap_include( itkImage.h )
+itk_wrap_include("vnl/vnl_matrix.h")
+
+itk_wrap_class("vnl_matrix" EXPLICIT_SPECIALIZATION)
+  itk_wrap_template("${ITKM_SS}" "${ITKT_SS}")
+  itk_wrap_template("${ITKM_US}" "${ITKT_US}")
+itk_end_wrap_class()
 
 itk_wrap_named_class("tube::ConvertImagesToCSV" tubeConvertImagesToCSV POINTER)
  foreach(d ${ITK_WRAP_IMAGE_DIMS})

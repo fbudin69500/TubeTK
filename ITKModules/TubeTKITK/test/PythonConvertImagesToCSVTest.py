@@ -80,7 +80,14 @@ def main():
 
   convertFilter.Update()
   numberRows=convertFilter.GetNumberRows()
-  numpy.savetxt("outputCSVFile.csv", convertFilter.GetOutput(), delimiter=",")
+  print "numberRows:%d"%numberRows
+  matrix=convertFilter.GetOutput()
+  print "matrix size: %d %d"%(matrix.cols(),matrix.rows())
+  narray=numpy.zeros((matrix.rows(),matrix.cols()))
+  for ii in range(0,matrix.rows()):
+    for jj in range(0,matrix.cols()):
+      narray[ii,jj]=matrix.get(ii,jj)
+  numpy.savetxt("outputCSVFile.csv", narray, delimiter=",")
 
   
 if __name__ == "__main__":
