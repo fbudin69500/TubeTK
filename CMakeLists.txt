@@ -33,7 +33,6 @@ include( ExternalProject )
 include( TubeTKExternalProjectDependency )
 include( CMakeDependentOption )
 include( TubeTKCheckPythonLibrary )
-include( TubeTKExternalData )
 
 # Set TubeTK version and output directories.
 #
@@ -662,7 +661,8 @@ endif()
 message( STATUS "Configuring Launcher script - ok [${_launcher_platform}]" )
 
 include( TubeTKMacroInstallPlugins )
-
+set( CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules" ${CMAKE_MODULE_PATH} )
+include( TubeTKExternalData )
 # Test TubeTK IPython examples.
 if( TubeTK_USE_EXAMPLES_AS_TESTS )
   add_subdirectory( Examples )
@@ -677,7 +677,7 @@ if( TubeTK_BUILD_APPLICATIONS )
 endif( TubeTK_BUILD_APPLICATIONS )
 
 if( TubeTK_BUILD_USING_SLICER )
-  add_subdirectory( SlicerModules )
+  #add_subdirectory( SlicerModules )
 endif( TubeTK_BUILD_USING_SLICER )
 
 if( BUILD_TESTING )
@@ -735,6 +735,4 @@ endif( NOT TubeTK_BUILD_USING_SLICER )
 
 # Create target to download data from the TubeTKData group. This must come after
 # all tests have been added that reference the group, so we put it last.
-#LIST(PREPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-include(${CMAKE_ROOT}/Modules/ExternalData.cmake)
 ExternalData_Add_Target(TubeTKData)
